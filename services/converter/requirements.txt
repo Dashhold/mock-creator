@@ -1,0 +1,17 @@
+# Pinned exactly so image rebuilds are reproducible and the option classes the
+# engine wrapper expects cannot shift under us.
+fastapi==0.120.4
+uvicorn[standard]==0.41.0
+python-multipart==0.0.22
+
+# Document conversion. The rapidocr extra pulls the ONNX runtime OCR engine,
+# which is CPU-only and needs no system packages, so it is the default.
+docling==2.129.0
+docling[rapidocr]==2.129.0
+
+# Optional second OCR engine, selectable per request.
+easyocr==1.7.2
+
+# Used to measure how much extractable text a PDF already has, which is how
+# "auto" OCR mode decides whether a page needs OCR at all.
+pypdf==6.4.0

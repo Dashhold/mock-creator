@@ -1,0 +1,190 @@
+# Mock Creator: an exam-agnostic content engine.
+#
+# Four services. Uploaded documents live in Postgres, not on a bind mount, so
+# there is nothing to copy onto the host and no volume to keep in sync.
+name: mock-creator
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mockcreator-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-mockcreator}
+    ports:
+      # Published for inspection with psql. Drop this line to keep Postgres
+      # reachable only from the other containers.
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-mockcreator}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # Document conversion and OCR. Loads several hundred megabytes of models on
+  # first start, which is why the API does not block on its health check.
+  converter:
+    build:
+      context: ./services/converter
+      dockerfile: Dockerfile
+    container_name: mockcreator-converter
+    restart: unless-stopped
+    environment:
+      CONVERTER_HOST: "0.0.0.0"
+      CONVERTER_PORT: "5001"
+      CONVERTER_CONCURRENCY: "${CONVERTER_CONCURRENCY:-2}"
+      CONVERTER_OCR_MODE: "${CONVERTER_OCR_MODE:-auto}"
+      CONVERTER_OCR_ENGINE: "${CONVERTER_OCR_ENGINE:-rapidocr}"
+      CONVERTER_TABLE_MODE: "${CONVERTER_TABLE_MODE:-accurate}"
+      CONVERTER_MAX_UPLOAD_BYTES: "${UPLOAD_MAX_BYTES:-134217728}"
+      CONVERTER_WARM_MODELS: "true"
+      OMP_NUM_THREADS: "${CONVERTER_THREADS:-4}"
+      # CONVERTER_API_KEY: change-me
+    ports:
+      - "${CONVERTER_PORT:-5001}:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:5001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 90s
+    deploy:
+      resources:
+        limits:
+          memory: ${CONVERTER_MEMORY_LIMIT:-6G}
+        reservations:
+          memory: 2G
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mockcreator-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      # Deliberately not service_healthy: the UI should come up straight away and
+      # report that the converter is still warming, rather than showing nothing
+      # for two minutes.
+      converter:
+        condition: service_started
+    environment:
+      SERVER_PORT: "8080"
+      SERVER_ENV: "${SERVER_ENV:-production}"
+
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: "${DB_USER:-postgres}"
+      DB_PASSWORD: "${DB_PASSWORD:-postgres}"
+      DB_NAME: "${DB_NAME:-mockcreator}"
+      DB_SSLMODE: disable
+      DB_TIMEZONE: "${DB_TIMEZONE:-UTC}"
+
+      CONVERTER_URL: "http://converter:5001"
+      # CONVERTER_API_KEY: change-me
+      CONVERTER_CONVERT_TIMEOUT: "${CONVERTER_CONVERT_TIMEOUT:-30m}"
+      CONVERTER_ENGINE: "${CONVERTER_ENGINE:-auto}"
+      CONVERTER_OCR_MODE: "${CONVERTER_OCR_MODE:-auto}"
+      CONVERTER_OCR_ENGINE: "${CONVERTER_OCR_ENGINE:-rapidocr}"
+      CONVERTER_MIN_CONFIDENCE: "${CONVERTER_MIN_CONFIDENCE:-0.75}"
+
+      WORKER_CONCURRENCY: "${WORKER_CONCURRENCY:-2}"
+      UPLOAD_MAX_BYTES: "${UPLOAD_MAX_BYTES:-134217728}"
+      REVIEW_AUTO_APPROVE_EXTRACTED: "${REVIEW_AUTO_APPROVE_EXTRACTED:-true}"
+
+      # Model-backed quality control. Entirely optional: with no model set the
+      # deterministic checks still run and still gate delivery, and the checks
+      # that need judgement report themselves as "not run" rather than as passes.
+      #
+      # Any OpenAI-compatible endpoint works. For the bundled local model:
+      #   docker compose --profile llm up -d
+      #   LLM_BASE_URL=http://ollama:11434/v1
+      LLM_BASE_URL: "${LLM_BASE_URL:-}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+      LLM_MODEL: "${LLM_MODEL:-}"
+      LLM_TIMEOUT: "${LLM_TIMEOUT:-120s}"
+      LLM_MAX_CONCURRENCY: "${LLM_MAX_CONCURRENCY:-4}"
+      LLM_MAX_INPUT_CHARS: "${LLM_MAX_INPUT_CHARS:-24000}"
+      LLM_AUDIT_QUESTIONS: "${LLM_AUDIT_QUESTIONS:-true}"
+      LLM_AUDIT_PAPERS: "${LLM_AUDIT_PAPERS:-true}"
+      LLM_REPAIR_BOUNDARIES: "${LLM_REPAIR_BOUNDARIES:-true}"
+      LLM_JUDGE_DUPLICATES: "${LLM_JUDGE_DUPLICATES:-true}"
+
+      CORS_ALLOWED_ORIGINS: "${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}"
+      # Set API_KEY to require a shared secret on every request. Leave it unset
+      # only while the stack stays on a private network.
+      # API_KEY: change-me
+    ports:
+      - "${API_PORT:-8090}:8080"
+    healthcheck:
+      # 127.0.0.1 rather than localhost, because "localhost" resolves to ::1
+      # first inside the container. A plain GET rather than --spider, which
+      # sends HEAD.
+      test: ["CMD", "wget", "--quiet", "--tries=1", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: mockcreator-frontend
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+
+  # Optional local model for the judgement-based quality checks: whether a
+  # question is answerable, whether an explanation contradicts its answer,
+  # whether two rewordings are the same question, and the final read-through of a
+  # generated paper.
+  #
+  # Off by default. Start it with:
+  #   docker compose --profile llm up -d
+  #   docker compose exec ollama ollama pull qwen3:30b-a3b-instruct-2507-q4_K_M
+  # then set LLM_BASE_URL=http://ollama:11434/v1 and
+  # LLM_MODEL=qwen3:30b-a3b-instruct-2507-q4_K_M in .env and restart the api.
+  #
+  # That model is a mixture of experts: 19 GB on disk but only about 3B
+  # parameters active per token, so it is markedly faster than a dense 14B on
+  # CPU while judging better. Raise OLLAMA_MEMORY_LIMIT to 24G for it. On a
+  # smaller machine use qwen3:14b (9 GB, needs 12G) or qwen3:4b-instruct
+  # (2.5 GB, needs 6G) — the checks degrade gracefully, and every finding is
+  # verified against the source text regardless of which model produced it.
+  #
+  # Running it locally rather than calling a hosted API matters here: auditing a
+  # warehouse means tens of thousands of calls over real exam content, and that
+  # content belongs to whoever licensed it.
+  ollama:
+    image: ollama/ollama:0.12.3
+    container_name: mockcreator-ollama
+    profiles: ["llm"]
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: "${OLLAMA_MEMORY_LIMIT:-12G}"
+
+volumes:
+  pgdata:
+  ollama:

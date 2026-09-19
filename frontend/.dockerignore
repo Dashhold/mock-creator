@@ -1,0 +1,12 @@
+# Without this, the whole local node_modules tree is uploaded into the build
+# context and then overwrites the freshly installed one.
+node_modules
+dist
+.git
+.env
+.env.*
+*.log
+.vscode/
+.idea/
+Dockerfile
+.dockerignore

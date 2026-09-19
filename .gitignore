@@ -1,0 +1,42 @@
+# Secrets and local overrides
+.env
+.env.local
+*.env
+!.env.example
+
+# Dependencies and build output
+node_modules/
+frontend/dist/
+backend/server
+backend/server.exe
+services/converter/__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Uploaded material now lives in the database. Anything left in these folders is
+# a leftover from the old file-based flow.
+backend/source/**
+!backend/source/**/.gitkeep
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Captured command output
+*.log
+ps.txt
+status*.txt
+rebuild.txt
+vet-result.txt
+
+# Diagnostic harnesses in .qa are kept; what they write out is not.
+.qa/*.md
+.qa/*.raw
+.qa/*.txt
+.qa/*.pdf
+.qa/*.exe
+.qa/md/
