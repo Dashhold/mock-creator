@@ -26,12 +26,14 @@ mkdir -p "$OUT"
 # --- the values rendered into the configuration --------------------------------
 # Checked here because nginx would otherwise start from a broken configuration,
 # or be handed something other than a port and an address.
-port=${PORT:-}
+port=${PORT:-80}
+log "PORT=$port"
 case "$port" in
     '' | *[!0-9]*) fail "PORT must be a port number, got '$port'" ;;
 esac
 
-upstream=${API_UPSTREAM:-}
+upstream=${API_UPSTREAM:-api:8080}
+log "API_UPSTREAM=$upstream"
 upstream_host=${upstream%:*}
 upstream_port=${upstream##*:}
 bad_upstream="API_UPSTREAM must be host:port, for example api:8080; got '$upstream'"
