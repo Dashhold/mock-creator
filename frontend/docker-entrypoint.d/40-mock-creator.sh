@@ -119,7 +119,10 @@ if [ -n "$key" ]; then
         umask 077
         printf 'proxy_set_header X-API-Key "%s";\n' "$key" > "$OUT/api-key.conf"
     )
-    log "the API key is added to forwarded API calls"
+    # Same fingerprint the API logs at startup; if the two differ, every API
+    # call is answered 401.
+    fingerprint=$(printf '%s' "$key" | sha256sum | cut -c1-8)
+    log "the API key is added to forwarded API calls, fingerprint=$fingerprint"
 else
     : > "$OUT/api-key.conf"
 fi

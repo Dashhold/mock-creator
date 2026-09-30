@@ -3,6 +3,8 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"flag"
 	"log"
@@ -36,6 +38,16 @@ func main() {
 		os.Getenv("DB_USER"), os.Getenv("DB_NAME"))
 
 	cfg := config.Load()
+
+	// A short, non-reversible fingerprint of the shared secret. The frontend
+	// logs the same fingerprint at startup, so a mismatch (every API call
+	// answered 401) is visible by comparing the two logs, without printing the key.
+	if cfg.Security.AuthEnabled() {
+		sum := sha256.Sum256([]byte(cfg.Security.APIKey))
+		log.Printf("api key required, fingerprint=%s", hex.EncodeToString(sum[:])[:8])
+	} else {
+		log.Printf("api key not set; the API is unauthenticated")
+	}
 
 	db, err := database.Connect(cfg)
 	if err != nil {

@@ -43,8 +43,9 @@ export default function Login({ onLogin }) {
       />
 
       {/* Minimal Login Form - Responsive positioning */}
-      <div className="relative z-10 p-4 sm:p-8 sm:pt-12 sm:pl-12 flex items-center justify-center sm:justify-start min-h-screen">
-        <form onSubmit={handleSubmit} className="w-full max-w-sm sm:w-80 space-y-4">
+      {/* Mobile: bottom of the screen, centred. Desktop (sm+): top-left corner. */}
+      <div className="relative z-10 flex min-h-screen min-h-[100dvh] items-end justify-center px-5 pb-10 sm:items-start sm:justify-start sm:p-12">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-3 sm:w-80 sm:space-y-4">
           {/* Error Message */}
           {error && (
             <div className="p-3 rounded-lg bg-red-500/80 backdrop-blur-sm flex items-center gap-2 text-white text-sm animate-shake">
