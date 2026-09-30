@@ -49,7 +49,7 @@ export default function Layout({ onLogout }) {
     <div className="flex min-h-screen bg-gray-50">
       <aside className="fixed flex h-full w-64 flex-col border-r border-gray-200 bg-white">
         <div className="border-b border-gray-200 px-5 py-5">
-          <h1 className="text-lg font-bold text-primary-700">Mock Creator</h1>
+          <h1 className="text-lg font-bold text-primary-700">Buddha Creates</h1>
           <p className="mt-0.5 text-xs text-gray-500">Exam content engine</p>
         </div>
 

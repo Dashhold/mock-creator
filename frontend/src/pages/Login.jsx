@@ -45,10 +45,10 @@ export default function Login({ onLogin }) {
       {/* Content - Aligned to Left */}
       <div className="relative z-10 flex items-center min-h-screen p-8 pl-16">
         <div className="w-full max-w-md">
-          {/* Transparent Blurry Glass Card */}
-          <div className="backdrop-blur-2xl bg-white/10 rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
+          {/* Darker Blurry Glass Card */}
+          <div className="backdrop-blur-2xl bg-black/40 rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
             {/* Subtle Shine Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
             
             {/* Card Content */}
             <div className="relative p-8">
@@ -57,12 +57,6 @@ export default function Login({ onLogin }) {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
                   <LogIn className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight drop-shadow-lg">
-                  Welcome Back
-                </h1>
-                <p className="text-white/90 text-sm drop-shadow">
-                  Sign in to continue to Mock Creator
-                </p>
               </div>
 
               {/* Error Message */}
@@ -144,7 +138,7 @@ export default function Login({ onLogin }) {
               {/* Footer */}
               <div className="mt-6 text-center">
                 <p className="text-white/70 text-xs drop-shadow">
-                  Secure login powered by Mock Creator
+                  Secure login
                 </p>
               </div>
             </div>
