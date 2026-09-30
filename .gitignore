@@ -1,0 +1,55 @@
+# Secrets and local overrides
+.env
+.env.local
+*.env
+!.env.example
+
+# Dependencies and build output
+node_modules/
+frontend/dist/
+backend/server
+backend/server.exe
+services/converter/__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Material only enters the system through the upload API, and exam papers belong
+# to whoever licensed them, so copies are never committed, wherever they are
+# saved. backend/source/ is a leftover from the old file-based flow.
+backend/source/**
+!backend/source/**/.gitkeep
+*.pdf
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.odt
+*.ods
+*.odp
+*.rtf
+*.epub
+
+# Editor and OS noise
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Captured command output
+*.log
+ps.txt
+status*.txt
+rebuild.txt
+vet-result.txt
+
+# Diagnostic harnesses in .qa are kept; what they write out is not.
+.qa/*.md
+.qa/*.raw
+.qa/*.txt
+.qa/*.pdf
+.qa/*.exe
+.qa/md/
