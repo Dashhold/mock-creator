@@ -30,10 +30,10 @@ COPY docker-entrypoint.d/40-mock-creator.sh /docker-entrypoint.d/40-mock-creator
 RUN sed -i 's/\r$//' /etc/nginx/templates/default.conf.template /docker-entrypoint.d/40-mock-creator.sh \
     && chmod 755 /docker-entrypoint.d/40-mock-creator.sh
 
-# Defaults for docker compose. Railway provides PORT itself; set API_UPSTREAM to
-# the API's private address there.
+# Defaults for docker compose. Railway provides PORT itself; API_UPSTREAM should
+# match your backend service name on Railway (e.g., mock-creator.railway.internal:8080).
 ENV PORT=80 \
-    API_UPSTREAM=api:8080
+    API_UPSTREAM=mock-creator.railway.internal:8080
 
 EXPOSE 80
 
