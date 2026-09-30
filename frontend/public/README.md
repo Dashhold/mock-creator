@@ -2,19 +2,23 @@
 
 This folder contains static assets served by the application.
 
-## Required Image
+## Required Images
 
-Place your `buddha-nature.jpg` image in this folder for the login page background.
+Place these images in this folder:
 
-The image should be:
-- Named exactly: `buddha-nature.jpg`
-- Format: JPG/JPEG
-- Recommended size: 1920x1080 or higher for best quality
-- Will be displayed as a full-screen background with overlay effects
+1. **bg-1.png** - Login page background image
+   - Format: PNG
+   - Recommended size: 1920x1080 or higher
+   - This will be displayed full-screen, clear without overlays
 
-## How it's used
+2. **logo.png** - Application logo/favicon
+   - Format: PNG
+   - Recommended size: 512x512 or similar square format
+   - Used as browser tab icon and app branding
 
-The login page uses this image as a background with:
-- Darkening filter for better text contrast
-- Gradient overlay (slate/blue tones)
-- Blur and glass-morphism effects on the login card
+## Current Status
+
+- ❌ bg-1.png - **MISSING** - Add this file for login background
+- ❌ logo.png - **MISSING** - Add this file for favicon
+- ✅ buddha-nature.jpg - Already present (no longer used)
+

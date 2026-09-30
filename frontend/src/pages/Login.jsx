@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogIn, User, Lock, AlertCircle } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 
 const CREDENTIALS = {
   username: 'dreambig',
@@ -34,116 +34,71 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="min-h-screen w-full relative overflow-hidden">
-      {/* Background Image - Clear, No Overlay */}
+      {/* Clear Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
-          backgroundImage: 'url(/buddha-nature.jpg)',
+          backgroundImage: 'url(/bg-1.png)',
         }}
       />
 
-      {/* Content - Aligned to Left */}
-      <div className="relative z-10 flex items-center min-h-screen p-8 pl-16">
-        <div className="w-full max-w-md">
-          {/* Darker Blurry Glass Card */}
-          <div className="backdrop-blur-2xl bg-black/40 rounded-3xl shadow-2xl border border-white/30 overflow-hidden">
-            {/* Subtle Shine Effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
-            
-            {/* Card Content */}
-            <div className="relative p-8">
-              {/* Logo/Title Section */}
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
-                  <LogIn className="w-8 h-8 text-white" />
-                </div>
-              </div>
-
-              {/* Error Message */}
-              {error && (
-                <div className="mb-6 p-3 rounded-lg bg-red-500/30 backdrop-blur-sm border border-red-300/50 flex items-center gap-2 text-white text-sm animate-shake">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {/* Login Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Username Field */}
-                <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-white/90 mb-2 drop-shadow">
-                    Username
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <User className="h-5 w-5 text-white/60" />
-                    </div>
-                    <input
-                      id="username"
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-3 bg-white/15 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all"
-                      placeholder="Enter your username"
-                      required
-                      autoComplete="username"
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                {/* Password Field */}
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-white/90 mb-2 drop-shadow">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-white/60" />
-                    </div>
-                    <input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-3 bg-white/15 backdrop-blur-sm border border-white/30 rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-transparent transition-all"
-                      placeholder="Enter your password"
-                      required
-                      autoComplete="current-password"
-                      disabled={isLoading}
-                    />
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3 px-4 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2 border border-white/30"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Signing in...</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="w-5 h-5" />
-                      <span>Sign In</span>
-                    </>
-                  )}
-                </button>
-              </form>
-
-              {/* Footer */}
-              <div className="mt-6 text-center">
-                <p className="text-white/70 text-xs drop-shadow">
-                  Secure login
-                </p>
-              </div>
+      {/* Minimal Login Form - Top Left */}
+      <div className="relative z-10 p-8 pt-12 pl-12">
+        <form onSubmit={handleSubmit} className="w-80 space-y-4">
+          {/* Error Message */}
+          {error && (
+            <div className="p-3 rounded-lg bg-red-500/80 backdrop-blur-sm flex items-center gap-2 text-white text-sm animate-shake">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
             </div>
+          )}
+
+          {/* Username Field */}
+          <div>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="block w-full px-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all shadow-lg"
+              placeholder="Username"
+              required
+              autoComplete="username"
+              disabled={isLoading}
+            />
           </div>
-        </div>
+
+          {/* Password Field */}
+          <div>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="block w-full px-4 py-3 bg-white/90 backdrop-blur-sm border-0 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all shadow-lg"
+              placeholder="Password"
+              required
+              autoComplete="current-password"
+              disabled={isLoading}
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 px-4 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 font-medium rounded-lg shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-gray-400 border-t-gray-800 rounded-full animate-spin" />
+                <span>Signing in...</span>
+              </div>
+            ) : (
+              <span>Sign In</span>
+            )}
+          </button>
+        </form>
       </div>
     </div>
   )
