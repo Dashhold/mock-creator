@@ -30,6 +30,11 @@ func main() {
 			"documents that failed or are still processing keep theirs")
 	flag.Parse()
 
+	// Debug: Log environment variables at startup to diagnose Railway config issues
+	log.Printf("DB_HOST=%s DB_PORT=%s DB_USER=%s DB_NAME=%s",
+		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"), os.Getenv("DB_NAME"))
+
 	cfg := config.Load()
 
 	db, err := database.Connect(cfg)
