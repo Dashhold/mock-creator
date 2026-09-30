@@ -3,6 +3,12 @@
 .env.local
 *.env
 !.env.example
+# Credential downloads (AWS console CSVs such as bedrock-long-term-api-key.csv,
+# access-key exports) and the Railway CLI's local link.
+*api-key*.csv
+*accessKeys*.csv
+*credentials*.csv
+.railway/
 
 # Dependencies and build output
 node_modules/
