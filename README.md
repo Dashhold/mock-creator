@@ -372,10 +372,10 @@ RAM limit that the converter exceeds).
    - **Converter service:** give it a name like `converter`, production
      environment, no domain. The CONVERTER_API_KEY defaults to
      `dev-shared-secret-change-in-production` which matches the backend default.
-     For production, override it under Variables:
+     For production, reference the API's value under Variables:
 
      ```
-     CONVERTER_API_KEY=<same key as API_KEY above>
+     CONVERTER_API_KEY=${{mock-creator.CONVERTER_API_KEY}}
      ```
 
      Under Settings → Deploy, set the same region and memory to at least 2 GB
@@ -386,16 +386,20 @@ RAM limit that the converter exceeds).
    - **Frontend service:** give it a name like `frontend`, production
      environment, then click Generate Domain under Settings → Networking →
      Public Networking so Railway gives it a public URL (something like
-     `frontend-production-xxxx.up.railway.app`). The API_KEY defaults to
-     `dev-shared-secret-change-in-production` which matches the backend.
-     
-     For production, override it under Variables:
+     `frontend-production-xxxx.up.railway.app`). Under Variables, point its
+     API_KEY at the API's own variable with a Railway reference, so the two can
+     never drift apart (a mismatch answers every API call with 401). Replace
+     `mock-creator` with your API service's name:
 
      ```
-     API_KEY=<same key as backend>
+     API_KEY=${{mock-creator.API_KEY}}
      BASIC_AUTH_USER=admin
      BASIC_AUTH_PASSWORD=<generate another long random string>
      ```
+
+     Unset or empty, API_KEY falls back to the same public default the API
+     uses. Both services log a short fingerprint of the key they use at startup
+     (`fingerprint=...`); matching fingerprints mean matching keys.
 
      Under Settings → Deploy, set the same region. Serverless is fine here: the
      frontend wakes in under a second.

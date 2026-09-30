@@ -9,7 +9,8 @@
 #   API_UPSTREAM          host:port of the API; api:8080 unless set
 #   BASIC_AUTH_USER       set both to require a login for the whole app
 #   BASIC_AUTH_PASSWORD
-#   API_KEY               the API's shared secret, added to every forwarded call
+#   API_KEY               the API's shared secret, added to every forwarded call;
+#                         the API's own default unless set
 set -eu
 
 ME=$(basename "$0")
@@ -109,20 +110,26 @@ fi
 # --- the API's shared secret -----------------------------------------------------------
 # Added to every forwarded API call, so it never reaches the browser and the
 # app's plain download links carry it too.
-key=${API_KEY:-}
-if [ -n "$key" ]; then
-    # Nothing that could end or escape the quoted string it is written into.
-    case "$key" in
-        *[!A-Za-z0-9._~+/=-]*) fail "API_KEY may only contain letters, digits and . _ ~ + / = -" ;;
-    esac
-    (
-        umask 077
-        printf 'proxy_set_header X-API-Key "%s";\n' "$key" > "$OUT/api-key.conf"
-    )
-    # Same fingerprint the API logs at startup; if the two differ, every API
-    # call is answered 401.
-    fingerprint=$(printf '%s' "$key" | sha256sum | cut -c1-8)
-    log "the API key is added to forwarded API calls, fingerprint=$fingerprint"
-else
-    : > "$OUT/api-key.conf"
+#
+# Unset or empty falls back to the same default the API uses
+# (backend/internal/config/config.go), because the API treats an empty API_KEY
+# as unset too. Without this, an empty value here (docker compose passing
+# "${API_KEY:-}", or a Railway reference to a variable the API does not have)
+# would send no key while the API still requires its default, and every call
+# would be answered 401.
+key=${API_KEY:-dev-shared-secret-change-in-production}
+# Nothing that could end or escape the quoted string it is written into.
+case "$key" in
+    *[!A-Za-z0-9._~+/=-]*) fail "API_KEY may only contain letters, digits and . _ ~ + / = -" ;;
+esac
+(
+    umask 077
+    printf 'proxy_set_header X-API-Key "%s";\n' "$key" > "$OUT/api-key.conf"
+)
+# Same fingerprint the API logs at startup; if the two differ, every API call
+# is answered 401.
+fingerprint=$(printf '%s' "$key" | sha256sum | cut -c1-8)
+log "the API key is added to forwarded API calls, fingerprint=$fingerprint"
+if [ "$key" = "dev-shared-secret-change-in-production" ]; then
+    log "warning: API_KEY is the public default; set API_KEY on the API and reference it here before exposing this address"
 fi
