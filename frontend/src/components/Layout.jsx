@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -30,6 +31,7 @@ const NAV = [
 
 export default function Layout({ onLogout }) {
   const navigate = useNavigate()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { data: activeJobs = [] } = useActiveJobs()
   const { data: health, isError: healthError } = useConverterHealth()
   const { data: reviewSummary } = useReviewSummary()
@@ -47,7 +49,32 @@ export default function Layout({ onLogout }) {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <aside className="fixed flex h-full w-64 flex-col border-r border-gray-200 bg-white">
+      {/* Mobile Menu Button */}
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="fixed top-4 left-4 z-50 lg:hidden p-2 rounded-lg bg-white shadow-lg border border-gray-200"
+        aria-label="Toggle menu"
+      >
+        <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {isSidebarOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          )}
+        </svg>
+      </button>
+
+      {/* Overlay for mobile */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`fixed flex h-full w-64 flex-col border-r border-gray-200 bg-white z-40 transition-transform duration-300 lg:translate-x-0 ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
         <div className="border-b border-gray-200 px-5 py-5">
           <h1 className="text-lg font-bold text-primary-700">Buddha Creates</h1>
           <p className="mt-0.5 text-xs text-gray-500">Exam content engine</p>
@@ -60,6 +87,7 @@ export default function Layout({ onLogout }) {
               <NavLink
                 key={to}
                 to={to}
+                onClick={() => setIsSidebarOpen(false)}
                 className={({ isActive }) =>
                   `flex items-start gap-3 px-5 py-2.5 transition-colors ${
                     isActive
@@ -153,7 +181,7 @@ export default function Layout({ onLogout }) {
         </div>
       </aside>
 
-      <main className="ml-64 flex-1 p-8">
+      <main className="flex-1 p-4 sm:p-6 lg:p-8 lg:ml-64 w-full">
         <Outlet />
       </main>
     </div>
