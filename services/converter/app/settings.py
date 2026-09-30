@@ -39,7 +39,7 @@ class Settings:
 
     # Optional shared secret. When set, requests must carry it as X-API-Key or
     # as a bearer token.
-    api_key: str = field(default_factory=lambda: _env("CONVERTER_API_KEY", ""))
+    api_key: str = field(default_factory=lambda: _env("CONVERTER_API_KEY", "dev-shared-secret-change-in-production"))
 
     # How many documents convert at once. Conversion is CPU and memory hungry,
     # so this stays small; raise it only with matching container memory.

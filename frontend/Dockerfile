@@ -33,7 +33,8 @@ RUN sed -i 's/\r$//' /etc/nginx/templates/default.conf.template /docker-entrypoi
 # Defaults for docker compose. Railway provides PORT itself; API_UPSTREAM should
 # match your backend service name on Railway (e.g., mock-creator.railway.internal:8080).
 ENV PORT=80 \
-    API_UPSTREAM=mock-creator.railway.internal:8080
+    API_UPSTREAM=mock-creator.railway.internal:8080 \
+    API_KEY=dev-shared-secret-change-in-production
 
 EXPOSE 80
 

@@ -29,7 +29,8 @@ ENV HOME=/home/app \
     TORCH_HOME=/home/app/.cache/torch \
     OMP_NUM_THREADS=4 \
     CONVERTER_HOST=0.0.0.0 \
-    CONVERTER_PORT=5001
+    CONVERTER_PORT=5001 \
+    CONVERTER_API_KEY=dev-shared-secret-change-in-production
 
 WORKDIR /app
 

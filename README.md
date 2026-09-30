@@ -356,7 +356,13 @@ RAM limit that the converter exceeds).
      DB_NAME=${{Postgres.PGDATABASE}}
      DB_SSLMODE=require
      CONVERTER_URL=http://converter.railway.internal:5001
+     ```
+
+     The API_KEY defaults to `dev-shared-secret-change-in-production` in the
+     source code. For production, override it by setting:
+     ```
      API_KEY=<generate a long random string>
+     CONVERTER_API_KEY=<same key>
      ```
 
      Under Settings → Deploy, set the region (Singapore for Southeast Asia) and
@@ -364,10 +370,12 @@ RAM limit that the converter exceeds).
      inactivity.
 
    - **Converter service:** give it a name like `converter`, production
-     environment, no domain. Under Variables:
+     environment, no domain. The CONVERTER_API_KEY defaults to
+     `dev-shared-secret-change-in-production` which matches the backend default.
+     For production, override it under Variables:
 
      ```
-     API_KEY=<same key as the API>
+     CONVERTER_API_KEY=<same key as API_KEY above>
      ```
 
      Under Settings → Deploy, set the same region and memory to at least 2 GB
@@ -378,11 +386,13 @@ RAM limit that the converter exceeds).
    - **Frontend service:** give it a name like `frontend`, production
      environment, then click Generate Domain under Settings → Networking →
      Public Networking so Railway gives it a public URL (something like
-     `frontend-production-xxxx.up.railway.app`). Under Variables:
+     `frontend-production-xxxx.up.railway.app`). The API_KEY defaults to
+     `dev-shared-secret-change-in-production` which matches the backend.
+     
+     For production, override it under Variables:
 
      ```
-     API_UPSTREAM=api.railway.internal:${{api.PORT}}
-     API_KEY=<same key again>
+     API_KEY=<same key as backend>
      BASIC_AUTH_USER=admin
      BASIC_AUTH_PASSWORD=<generate another long random string>
      ```

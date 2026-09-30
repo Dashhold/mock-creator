@@ -206,7 +206,7 @@ func Load() *Config {
 		},
 		Converter: ConverterConfig{
 			ServiceURL:              getEnv("CONVERTER_URL", "http://localhost:5001"),
-			APIKey:                  getEnv("CONVERTER_API_KEY", ""),
+			APIKey:                  getEnv("CONVERTER_API_KEY", "dev-shared-secret-change-in-production"),
 			RequestTimeout:          getDuration("CONVERTER_REQUEST_TIMEOUT", 2*time.Minute),
 			ConvertTimeout:          getDuration("CONVERTER_CONVERT_TIMEOUT", 30*time.Minute),
 			PollInterval:            getDuration("CONVERTER_POLL_INTERVAL", 2*time.Second),
@@ -234,7 +234,7 @@ func Load() *Config {
 			AutoApproveExtracted: getBool("REVIEW_AUTO_APPROVE_EXTRACTED", true),
 		},
 		Security: SecurityConfig{
-			APIKey: getEnv("API_KEY", ""),
+			APIKey: getEnv("API_KEY", "dev-shared-secret-change-in-production"),
 			AllowedOrigins: getList("CORS_ALLOWED_ORIGINS",
 				"http://localhost:3000,http://127.0.0.1:3000"),
 		},
