@@ -59,3 +59,14 @@ vet-result.txt
 .qa/*.pdf
 .qa/*.exe
 .qa/md/
+# Mobile app (Expo) build output and signing material
+mobile/node_modules/
+mobile/android/
+mobile/ios/
+mobile/dist/
+mobile/.expo/
+*.apk
+*.aab
+*.keystore
+*.jks
+.agents/
