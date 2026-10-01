@@ -302,6 +302,7 @@ func (h *Handler) ExportPaper(c *gin.Context) {
 		Preload("Items.Question.Options", func(db *gorm.DB) *gorm.DB {
 			return db.Order("question_options.order_index asc")
 		}).
+		Preload("Items.Question.Passage").
 		First(&paper, id).Error
 	if err != nil {
 		dbError(c, err, "paper")
@@ -337,6 +338,16 @@ func (h *Handler) ExportPaper(c *gin.Context) {
 
 	withAnswers := boolQuery(c, "answers", true)
 	withExplanations := boolQuery(c, "explanations", withAnswers)
+
+	switch format := strings.ToLower(strings.TrimSpace(c.DefaultQuery("format", "md"))); format {
+	case "pdf", "docx", "word":
+		h.exportBooklet(c, paper, format, withAnswers, withExplanations)
+		return
+	case "", "md", "markdown", "json":
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "format must be one of pdf, docx, md or json"})
+		return
+	}
 
 	var b strings.Builder
 	examName := ""

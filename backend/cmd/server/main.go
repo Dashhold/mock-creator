@@ -18,6 +18,7 @@ import (
 	"mockcreator/internal/converter"
 	"mockcreator/internal/database"
 	"mockcreator/internal/pipeline"
+	"mockcreator/internal/render"
 	"mockcreator/internal/server"
 )
 
@@ -100,6 +101,18 @@ func main() {
 
 	// Report the converter's state at boot so a misconfigured URL is obvious
 	// here instead of surfacing as a failed upload later.
+	// Prove PDF export works on this host (typst present, fonts shaping) without
+	// delaying startup; the result is one log line either way.
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+		defer cancel()
+		if version, size, took, err := render.SelfTest(ctx); err != nil {
+			log.Printf("pdf export unavailable: %v", err)
+		} else {
+			log.Printf("pdf export ready: %s, self-test %d bytes in %s", version, size, took.Round(time.Millisecond))
+		}
+	}()
+
 	probeCtx, cancelProbe := context.WithTimeout(context.Background(), 10*time.Second)
 	if health, err := conv.Health(probeCtx); err != nil {
 		log.Printf("converter at %s is not answering yet: %v", cfg.Converter.ServiceURL, err)

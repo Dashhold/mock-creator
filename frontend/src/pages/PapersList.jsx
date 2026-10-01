@@ -282,15 +282,15 @@ function PaperCard({ paper, onDelete }) {
         <span className="text-xs text-gray-500">{formatDate(paper.created_at)}</span>
         <div className="flex items-center gap-0.5">
           <a
-            href={api.exportUrl(paper.id, { draft: paper.quality_status !== 'pass' })}
+            href={api.exportUrl(paper.id, { draft: paper.quality_status !== 'pass', format: 'pdf', part: 'both' })}
             download
           >
             <IconButton
               icon={Download}
               title={
                 paper.quality_status === 'pass'
-                  ? 'Export as markdown'
-                  : 'Export as a draft, stamped as not cleared for delivery'
+                  ? 'Download the Dashhold-EdTech PDF booklet (paper + answer key)'
+                  : 'Download a draft PDF, stamped as not cleared for delivery'
               }
             />
           </a>

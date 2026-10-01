@@ -179,8 +179,16 @@ export const api = {
   runPaperQA: (id, params) => apiClient.post(`/papers/${id}/qa`, null, { params: clean(params) }),
   // draft=true is required to export a paper that has not passed QA, and the
   // export is stamped as a draft when it has not.
-  exportUrl: (id, { answers = true, explanations = true, draft = false } = {}) =>
-    `${API_BASE_URL}/papers/${id}/export?answers=${answers}&explanations=${explanations}${draft ? '&draft=true' : ''}`,
+  // format: pdf | docx | md (Markdown, the default) | json. part (pdf/docx):
+  // paper | key | both. The booklet is branded Dashhold-EdTech.
+  exportUrl: (id, { answers = true, explanations = true, draft = false, format, part, watermark } = {}) => {
+    const params = new URLSearchParams({ answers: String(answers), explanations: String(explanations) })
+    if (draft) params.set('draft', 'true')
+    if (format) params.set('format', format)
+    if (part) params.set('part', part)
+    if (watermark === false) params.set('watermark', 'false')
+    return `${API_BASE_URL}/papers/${id}/export?${params.toString()}`
+  },
 }
 
 export default apiClient

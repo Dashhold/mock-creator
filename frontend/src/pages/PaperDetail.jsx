@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   CheckCircle2,
-  Download,
   Eye,
   EyeOff,
   Link2,
@@ -27,6 +26,7 @@ import {
   formatDate,
 } from '../components/ui'
 import { QualityBadge, QualityGatePanel } from '../components/Quality'
+import ExportMenu from '../components/ExportMenu'
 
 export default function PaperDetail() {
   const { paperId } = useParams()
@@ -106,13 +106,9 @@ export default function PaperDetail() {
               {showAnswers ? 'Hide answers' : 'Show answers'}
             </Button>
             {/* Export offers the deliverable file only when the paper has passed.
-                Otherwise the link explicitly asks for a draft, which the server
+                Otherwise it explicitly asks for a draft, which the server
                 stamps, so an unvetted paper cannot be mistaken for a final one. */}
-            <a href={api.exportUrl(paper.id, { answers: true, draft: !publishable })} download>
-              <Button variant="secondary" icon={Download}>
-                {publishable ? 'Export' : 'Export draft'}
-              </Button>
-            </a>
+            <ExportMenu paperId={paper.id} publishable={publishable} />
             {paper.status === 'published' ? (
               <Button icon={Undo2} variant="secondary" loading={publish.isPending} onClick={() => publish.mutate('draft')}>
                 Back to draft
